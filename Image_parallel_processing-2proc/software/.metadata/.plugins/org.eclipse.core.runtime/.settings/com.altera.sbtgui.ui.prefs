@@ -1,0 +1,4 @@
+eclipse.preferences.version=1
+newApplicationWizardPage.defaultLocation=/home/luctins/repo/Image_parallel_processing/software/SDRAM-test
+newBspWizardPage.defaultLocation=/home/luctins/repo/Image_parallel_processing/software/proc-0
+newBspWizardPage.sopcinfoFile=/home/luctins/repo/Image_parallel_processing/image_parallel_processing.sopcinfo

@@ -1,0 +1,13 @@
+#include "system.h"
+#include <stdint.h>
+
+uint16_t testvalue
+
+void main(void)
+{
+	alt_printf("hello!\n");
+	while (1)
+	{
+
+	}
+}

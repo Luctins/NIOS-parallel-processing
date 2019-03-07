@@ -1,0 +1,18 @@
+#include "system.h"
+#include <stdint.h>
+#include <stdio.h>
+
+uint16_t testvalue = 1234;
+
+#define DEBUG(message) alt_printf(message "\n")
+
+#define PROC0_SDRAM_BASE 0x08000000
+void main(void)
+{
+	printf("hello!\n");
+	IOWR_16DIRECT(,)
+	while (1)
+	{
+
+	}
+}

@@ -1,0 +1,37 @@
+# # File gsaved with Nlview version 6.3.8  2013-12-19 bk=1.2992 VDI=34 GEI=35
+# 
+preplace inst image_parallel_processing.proc_1_0.proc_1.reset_bridge -pg 1
+preplace inst image_parallel_processing.proc_0_0.clk_0 -pg 1
+preplace inst image_parallel_processing.proc_1_0.proc_1.clock_bridge -pg 1
+preplace inst image_parallel_processing.clk_0 -pg 1 -lvl 1 -y 180
+preplace inst image_parallel_processing.proc_1_0 -pg 1 -lvl 3 -y 300
+preplace inst image_parallel_processing.proc_0_0.timer_0 -pg 1
+preplace inst image_parallel_processing.proc_0_0.jtag_uart_0 -pg 1
+preplace inst image_parallel_processing.proc_0_0 -pg 1 -lvl 3 -y 180
+preplace inst image_parallel_processing.sdram_controller -pg 1 -lvl 4 -y 220
+preplace inst image_parallel_processing.proc_0_0.proc_0.reset_bridge -pg 1
+preplace inst image_parallel_processing.proc_1_0.clk_1 -pg 1
+preplace inst image_parallel_processing.mutex_0 -pg 1 -lvl 4 -y 140
+preplace inst image_parallel_processing.proc_1_0.out_bridge_1 -pg 1
+preplace inst image_parallel_processing.proc_1_0.onchip_memory2_1 -pg 1
+preplace inst image_parallel_processing.pll_0 -pg 1 -lvl 2 -y 110
+preplace inst image_parallel_processing.proc_0_0.onchip_memory2_0 -pg 1
+preplace inst image_parallel_processing.proc_1_0.jtag_uart_1 -pg 1
+preplace inst image_parallel_processing.proc_0_0.out_bridg_0 -pg 1
+preplace inst image_parallel_processing -pg 1 -lvl 1 -y 40 -regy -20
+preplace inst image_parallel_processing.proc_1_0.proc_1 -pg 1
+preplace inst image_parallel_processing.proc_0_0.proc_0.cpu -pg 1
+preplace inst image_parallel_processing.proc_1_0.timer_1 -pg 1
+preplace inst image_parallel_processing.proc_1_0.proc_1.cpu -pg 1
+preplace inst image_parallel_processing.proc_0_0.proc_0.clock_bridge -pg 1
+preplace inst image_parallel_processing.proc_0_0.proc_0 -pg 1
+preplace netloc FAN_OUT<net_container>image_parallel_processing</net_container>(SLAVE)proc_1_0.clk,(SLAVE)proc_0_0.clk,(MASTER)pll_0.outclk0,(SLAVE)mutex_0.clk) 1 2 2 600 80 NJ
+preplace netloc EXPORT<net_container>image_parallel_processing</net_container>(SLAVE)clk_0.clk_in_reset,(SLAVE)image_parallel_processing.reset) 1 0 1 NJ
+preplace netloc POINT_TO_POINT<net_container>image_parallel_processing</net_container>(SLAVE)sdram_controller.clk,(MASTER)pll_0.outclk1) 1 2 2 N 140 NJ
+preplace netloc POINT_TO_POINT<net_container>image_parallel_processing</net_container>(MASTER)clk_0.clk,(SLAVE)pll_0.refclk) 1 1 1 350
+preplace netloc INTERCONNECT<net_container>image_parallel_processing</net_container>(SLAVE)sdram_controller.s1,(SLAVE)mutex_0.s1,(MASTER)proc_1_0.out_bridge_master,(MASTER)proc_0_0.out_bridge_master) 1 3 1 1020
+preplace netloc EXPORT<net_container>image_parallel_processing</net_container>(SLAVE)sdram_controller.wire,(SLAVE)image_parallel_processing.sdram_controller_wire) 1 0 4 NJ 40 NJ 40 NJ 120 NJ
+preplace netloc FAN_OUT<net_container>image_parallel_processing</net_container>(SLAVE)pll_0.reset,(MASTER)clk_0.clk_reset,(SLAVE)proc_1_0.reset,(SLAVE)sdram_controller.reset,(SLAVE)mutex_0.reset,(SLAVE)proc_0_0.reset) 1 1 3 370 210 640 100 1000
+preplace netloc EXPORT<net_container>image_parallel_processing</net_container>(SLAVE)clk_0.clk_in,(SLAVE)image_parallel_processing.clk) 1 0 1 NJ
+levelinfo -pg 1 0 140 1190
+levelinfo -hier image_parallel_processing 150 180 470 770 1070 1180
