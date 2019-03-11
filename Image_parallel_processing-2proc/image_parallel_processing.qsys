@@ -193,7 +193,9 @@
  <parameter name="useTestBenchNamingPattern" value="false" />
  <instanceScript></instanceScript>
  <interface name="clk" internal="clk_0.clk_in" type="clock" dir="end" />
+ <interface name="pll_locked" internal="pll_0.locked" type="conduit" dir="end" />
  <interface name="reset" internal="clk_0.clk_in_reset" type="reset" dir="end" />
+ <interface name="sdram_clk" internal="pll_0.outclk1" type="clock" dir="start" />
  <interface
    name="sdram_controller_wire"
    internal="sdram_controller.wire"
@@ -347,7 +349,7 @@
   <parameter name="gui_output_clock_frequency8" value="100.0" />
   <parameter name="gui_output_clock_frequency9" value="100.0" />
   <parameter name="gui_phase_shift0" value="0" />
-  <parameter name="gui_phase_shift1" value="-7" />
+  <parameter name="gui_phase_shift1" value="-3800" />
   <parameter name="gui_phase_shift10" value="0" />
   <parameter name="gui_phase_shift11" value="0" />
   <parameter name="gui_phase_shift12" value="0" />
@@ -365,7 +367,7 @@
   <parameter name="gui_phase_shift8" value="0" />
   <parameter name="gui_phase_shift9" value="0" />
   <parameter name="gui_phase_shift_deg0" value="0.0" />
-  <parameter name="gui_phase_shift_deg1" value="0.0" />
+  <parameter name="gui_phase_shift_deg1" value="324.0" />
   <parameter name="gui_phase_shift_deg10" value="0.0" />
   <parameter name="gui_phase_shift_deg11" value="0.0" />
   <parameter name="gui_phase_shift_deg12" value="0.0" />
@@ -410,12 +412,12 @@
   <parameter name="gui_reference_clock_frequency" value="50.0" />
   <parameter name="gui_switchover_delay" value="0" />
   <parameter name="gui_switchover_mode">Automatic Switchover</parameter>
-  <parameter name="gui_use_locked" value="false" />
+  <parameter name="gui_use_locked" value="true" />
  </module>
  <module name="proc_0_0" kind="proc_0" version="1.0" enabled="1">
-  <parameter name="AUTO_CLK_CLOCK_DOMAIN" value="3" />
+  <parameter name="AUTO_CLK_CLOCK_DOMAIN" value="4" />
   <parameter name="AUTO_CLK_CLOCK_RATE" value="143000000" />
-  <parameter name="AUTO_CLK_RESET_DOMAIN" value="3" />
+  <parameter name="AUTO_CLK_RESET_DOMAIN" value="4" />
   <parameter name="AUTO_DEVICE" value="5CSEMA5F31C6" />
   <parameter name="AUTO_DEVICE_FAMILY" value="Cyclone V" />
   <parameter name="AUTO_DEVICE_SPEEDGRADE" value="6" />
@@ -425,9 +427,9 @@
   <parameter name="AUTO_UNIQUE_ID">image_parallel_processing_proc_0_0</parameter>
  </module>
  <module name="proc_1_0" kind="proc_1" version="1.0" enabled="1">
-  <parameter name="AUTO_CLK_CLOCK_DOMAIN" value="3" />
+  <parameter name="AUTO_CLK_CLOCK_DOMAIN" value="4" />
   <parameter name="AUTO_CLK_CLOCK_RATE" value="143000000" />
-  <parameter name="AUTO_CLK_RESET_DOMAIN" value="3" />
+  <parameter name="AUTO_CLK_RESET_DOMAIN" value="4" />
   <parameter name="AUTO_DEVICE" value="5CSEMA5F31C6" />
   <parameter name="AUTO_DEVICE_FAMILY" value="Cyclone V" />
   <parameter name="AUTO_DEVICE_SPEEDGRADE" value="6" />
@@ -441,11 +443,11 @@
    kind="altera_avalon_new_sdram_controller"
    version="16.1"
    enabled="1">
-  <parameter name="TAC" value="5.5" />
+  <parameter name="TAC" value="5.4" />
   <parameter name="TMRD" value="3" />
   <parameter name="TRCD" value="15.0" />
-  <parameter name="TRFC" value="60.0" />
-  <parameter name="TRP" value="10.0" />
+  <parameter name="TRFC" value="70.0" />
+  <parameter name="TRP" value="15.0" />
   <parameter name="TWR" value="14.0" />
   <parameter name="casLatency" value="3" />
   <parameter name="clockRate" value="143000000" />
@@ -461,7 +463,7 @@
   <parameter name="numberOfChipSelects" value="1" />
   <parameter name="pinsSharedViaTriState" value="false" />
   <parameter name="powerUpDelay" value="100.0" />
-  <parameter name="refreshPeriod" value="15.625" />
+  <parameter name="refreshPeriod" value="7.8125" />
   <parameter name="registerDataIn" value="true" />
   <parameter name="rowWidth" value="13" />
  </module>
@@ -508,7 +510,7 @@
  <connection
    kind="clock"
    version="16.1"
-   start="pll_0.outclk1"
+   start="pll_0.outclk0"
    end="sdram_controller.clk" />
  <connection
    kind="reset"
