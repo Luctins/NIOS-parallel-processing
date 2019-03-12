@@ -1,0 +1,18 @@
+19:13:42 **** Incremental Build of configuration Nios II for project SDRAM-acess-test ****
+make all 
+Info: Building ../proc-0/
+make --no-print-directory -C ../proc-0/
+[BSP build complete]
+Info: Compiling hello_world_small.c to obj/default/hello_world_small.o
+nios2-elf-gcc -xc -MP -MMD -c -I../proc-0//HAL/inc -I../proc-0/ -I../proc-0//drivers/inc  -pipe -D__hal__ -DALT_NO_C_PLUS_PLUS -DALT_NO_CLEAN_EXIT -D'exit(a)=_exit(a)' -DALT_NO_EXIT -DALT_USE_DIRECT_DRIVERS -DALT_NO_INSTRUCTION_EMULATION -DALT_USE_SMALL_DRIVERS -DSMALL_C_LIB -DALT_SINGLE_THREADED    -Os -g -Wall   -mno-hw-div -mhw-mul -mno-hw-mulx -mgpopt=global  -o obj/default/hello_world_small.o hello_world_small.c
+Info: Linking SDRAM-acess-test.elf
+nios2-elf-g++  -T'../proc-0//linker.x' -msys-crt0='../proc-0//obj/HAL/src/crt0.o' -msys-lib=hal_bsp -L../proc-0/  -msmallc  -Wl,-Map=SDRAM-acess-test.map   -Os -g -Wall   -mno-hw-div -mhw-mul -mno-hw-mulx -mgpopt=global  -o SDRAM-acess-test.elf obj/default/hello_world_small.o -lm -msys-lib=m
+nios2-elf-insert SDRAM-acess-test.elf --thread_model hal --cpu_name proc_0_0_proc_0 --qsys true --simulation_enabled false --stderr_dev proc_0_0_jtag_uart_0 --stdin_dev proc_0_0_jtag_uart_0 --stdout_dev proc_0_0_jtag_uart_0 --sopc_system_name image_parallel_processing_qsys --quartus_project_dir "/home/luctins/repo/NIOS-parallel-processing/Image_parallel_processing-2proc" --jdi ../..//output_files/image_parallel_processing.jdi --sopcinfo /home/luctins/repo/NIOS-parallel-processing/Image_parallel_processing-2proc/software/proc-0/../../image_parallel_processing_qsys.sopcinfo
+Info: (SDRAM-acess-test.elf) 1924 Bytes program size (code + initialized data).
+Info:                        65535 KBytes free for stack + heap.
+Info: Creating SDRAM-acess-test.objdump
+nios2-elf-objdump --disassemble --syms --all-header --source SDRAM-acess-test.elf >SDRAM-acess-test.objdump
+[SDRAM-acess-test build complete]
+
+19:13:43 Build Finished (took 725ms)
+
