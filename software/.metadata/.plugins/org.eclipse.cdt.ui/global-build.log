@@ -1,0 +1,31 @@
+18:18:28 **** Incremental Build of configuration Nios II for project SDRAM-test ****
+make all 
+Info: Building ../proc-0/
+make --no-print-directory -C ../proc-0/
+Makefile:547: Warning: SOPC File ../../image_parallel_processing.sopcinfo could not be found.
+[BSP build complete]
+Info: Compiling main.c to obj/default/main.o
+nios2-elf-gcc -xc -MP -MMD -c -I../proc-0//HAL/inc -I../proc-0/ -I../proc-0//drivers/inc  -pipe -D__hal__ -DALT_NO_INSTRUCTION_EMULATION -DSMALL_C_LIB -DALT_SINGLE_THREADED    -O0 -g -Wall   -mno-hw-div -mhw-mul -mno-hw-mulx -mgpopt=global  -o obj/default/main.o main.c
+In file included from main.c:2:0:
+main.c: In function 'fill_image':
+../proc-0//HAL/inc/io.h:51:14: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
+   ((void *)(((alt_u8*)BASE) + (OFFSET)))
+              ^
+../proc-0//HAL/inc/io.h:63:20: note: in expansion of macro '__IO_CALC_ADDRESS_DYNAMIC'
+   __builtin_sthio (__IO_CALC_ADDRESS_DYNAMIC ((BASE), (OFFSET)), (DATA))
+                    ^
+main.c:45:4: note: in expansion of macro 'IOWR_16DIRECT'
+    IOWR_16DIRECT(image_base,j+i*image_height,v);
+    ^
+main.c: At top level:
+main.c:51:6: warning: return type of 'main' is not 'int' [-Wmain]
+ void main(void)
+      ^
+Info: Linking SDRAM-test.elf
+nios2-elf-g++  -T'../proc-0//linker.x' -msys-crt0='../proc-0//obj/HAL/src/crt0.o' -msys-lib=hal_bsp -L../proc-0/  -msmallc  -Wl,-Map=SDRAM-test.map   -O0 -g -Wall   -mno-hw-div -mhw-mul -mno-hw-mulx -mgpopt=global  -o SDRAM-test.elf obj/default/main.o -lm -msys-lib=m
+nios2-elf-insert SDRAM-test.elf --thread_model hal --cpu_name proc_0_0_proc_0 --qsys true --simulation_enabled false --stderr_dev proc_0_0_jtag_uart_0 --stdin_dev proc_0_0_jtag_uart_0 --stdout_dev proc_0_0_jtag_uart_0 --sopc_system_name image_parallel_processing
+Info: (SDRAM-test.elf) 17 KBytes program size (code + initialized data).
+Info:                  65530 KBytes free for stack + heap.
+Info: Creating SDRAM-test.objdump
+nios2-elf-objdump --disassemble --syms --all-header SDRAM-test.elf >SDRAM-test.objdump
+[SDRAM-test build complete]

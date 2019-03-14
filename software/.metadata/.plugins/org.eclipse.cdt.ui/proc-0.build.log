@@ -1,0 +1,7 @@
+18:13:02 **** Incremental Build of configuration Nios II for project proc-0 ****
+make all 
+Makefile:547: Warning: SOPC File ../../image_parallel_processing.sopcinfo could not be found.
+[BSP build complete]
+
+18:13:03 Build Finished (took 363ms)
+

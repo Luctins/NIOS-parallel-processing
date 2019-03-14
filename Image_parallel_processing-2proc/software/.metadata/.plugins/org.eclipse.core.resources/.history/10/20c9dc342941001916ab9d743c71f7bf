@@ -1,4 +1,0 @@
-#include "system.h"
-#include <stdint.h>
-
-uint16_t testvalue

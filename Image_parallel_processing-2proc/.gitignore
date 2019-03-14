@@ -3,6 +3,4 @@ db
 db/*
 image_parallel_processing_qsys/*
 output_files/*
-./proc_0/*
-./proc_1/*
 *.sopcinfo
