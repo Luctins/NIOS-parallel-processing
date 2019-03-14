@@ -49,9 +49,6 @@ set_global_assignment -name MAX_CORE_JUNCTION_TEMP 85
 set_global_assignment -name ERROR_CHECK_FREQUENCY_DIVISOR 256
 set_global_assignment -name POWER_PRESET_COOLING_SOLUTION "23 MM HEAT SINK WITH 200 LFPM AIRFLOW"
 set_global_assignment -name POWER_BOARD_THERMAL_MODEL "NONE (CONSERVATIVE)"
-set_global_assignment -name QIP_FILE image_parallel_processing/synthesis/image_parallel_processing.qip
-set_global_assignment -name QIP_FILE proc_1/synthesis/proc_1.qip
-set_global_assignment -name QIP_FILE proc_0/synthesis/proc_0.qip
 set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
 set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
 set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
@@ -95,3 +92,7 @@ set_location_assignment PIN_AK12 -to sdram_controller_wire_dqm[1]
 set_location_assignment PIN_AE13 -to sdram_controller_wire_ras_n
 set_location_assignment PIN_AA13 -to sdram_controller_wire_we_n
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
+set_global_assignment -name VERILOG_FILE image_parallel_processing.v
+set_global_assignment -name QIP_FILE image_parallel_processing_qsys/synthesis/image_parallel_processing_qsys.qip
+set_global_assignment -name QIP_FILE proc_1/synthesis/proc_1.qip
+set_global_assignment -name QIP_FILE proc_0/synthesis/proc_0.qip
