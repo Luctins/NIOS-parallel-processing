@@ -416,7 +416,7 @@
   <parameter name="AUTO_GENERATION_ID" value="0" />
   <parameter name="AUTO_OUT_BRIDGE_MASTER_ADDRESS_MAP"><![CDATA[<address-map><slave name='sdram_controller.s1' start='0x0' end='0x4000000' /><slave name='mutex_0.s1' start='0x4000000' end='0x4000008' /></address-map>]]></parameter>
   <parameter name="AUTO_OUT_BRIDGE_MASTER_ADDRESS_WIDTH" value="AddressWidth = 27" />
-  <parameter name="AUTO_UNIQUE_ID">image_parallel_processing_qsys_proc_0_0</parameter>
+  <parameter name="AUTO_UNIQUE_ID">$${FILENAME}_proc_0_0</parameter>
  </module>
  <module
    name="sdram_controller"
@@ -432,7 +432,7 @@
   <parameter name="casLatency" value="3" />
   <parameter name="clockRate" value="143000000" />
   <parameter name="columnWidth" value="10" />
-  <parameter name="componentName">image_parallel_processing_qsys_sdram_controller</parameter>
+  <parameter name="componentName">$${FILENAME}_sdram_controller</parameter>
   <parameter name="dataWidth" value="16" />
   <parameter name="generateSimulationModel" value="false" />
   <parameter name="initNOPDelay" value="0.0" />
