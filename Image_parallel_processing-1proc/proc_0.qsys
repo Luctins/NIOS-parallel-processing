@@ -181,7 +181,7 @@
    version="16.1"
    enabled="1">
   <parameter name="allowInSystemMemoryContentEditor" value="false" />
-  <parameter name="autoInitializationFileName">proc_0_onchip_memory2_0</parameter>
+  <parameter name="autoInitializationFileName">$${FILENAME}_onchip_memory2_0</parameter>
   <parameter name="blockType" value="AUTO" />
   <parameter name="copyInitFile" value="false" />
   <parameter name="dataWidth" value="32" />
@@ -282,7 +282,7 @@
   <parameter name="icache_ramBlockType" value="Automatic" />
   <parameter name="icache_size" value="4096" />
   <parameter name="icache_tagramBlockType" value="Automatic" />
-  <parameter name="impl" value="Tiny" />
+  <parameter name="impl" value="Fast" />
   <parameter name="instAddrWidth" value="20" />
   <parameter name="instSlaveMapParam"><![CDATA[<address-map><slave name='onchip_memory2_0.s1' start='0x0' end='0x493E0' type='altera_avalon_onchip_memory2.s1' /><slave name='proc_0.debug_mem_slave' start='0x80800' end='0x81000' type='altera_nios2_gen2.debug_mem_slave' /></address-map>]]></parameter>
   <parameter name="instructionMasterHighPerformanceAddrWidth" value="1" />
@@ -407,8 +407,8 @@
   <parameter name="alwaysRun" value="false" />
   <parameter name="counterSize" value="32" />
   <parameter name="fixedPeriod" value="true" />
-  <parameter name="period" value="50" />
-  <parameter name="periodUnits" value="USEC" />
+  <parameter name="period" value="1" />
+  <parameter name="periodUnits" value="MSEC" />
   <parameter name="resetOutput" value="false" />
   <parameter name="snapshot" value="true" />
   <parameter name="systemFrequency" value="143000000" />
