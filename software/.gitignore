@@ -2,3 +2,4 @@
 RemoteSystemsTempFiles
 *.elf
 *.objdump
+*_bsp/*
