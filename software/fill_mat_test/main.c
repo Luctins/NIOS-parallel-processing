@@ -6,16 +6,17 @@
 #include "../debug.h"
 
 /*--------- Macros/constants -------*/
-#define BSIZE 4 /*block size*/
+#define IMG_WRITE_BSIZE 4 /*block size*/
 
 #define IMG_H (600)
 #define IMG_W (800)
 
-#define THRESHOLD (127)
+#define IMG_THRESHOLD (127)
 
+#define IMG_FILL_GRADIENT 0
 /*------- Function pre-declaration --------*/
 
-void fill_image(uint8_t *, uint16_t, uint16_t);
+void fill_image(uint8_t *, uint16_t, uint16_t); //__attribute__((always_inline));
 void print_num(uint32_t);
 
 /*------- Global Variables --------*/
@@ -25,7 +26,7 @@ void print_num(uint32_t);
 clock_t start=0,now=0;
 
 /*--------- Main ---------*/
-
+int a = 127;
 int main(void)
 {
 	DEBUG("hello there");
@@ -35,7 +36,6 @@ int main(void)
 	{
 		start = clock();
 		fill_image((alt_u8 *) SDRAM_CONTROLLER_BASE,IMG_H,IMG_W);
-
 		now=clock();
 		print_num(now-start);
 	}
@@ -57,18 +57,19 @@ void fill_image(uint8_t * image_base, uint16_t image_height, uint16_t image_widt
 	uint16_t i,j;
 	for(i=0;i<image_height;++i) /*write image in "lines" for better memory performance*/
 	{
-		for(j=0;j<image_width;j+=BSIZE)
+		for(j=0;j<image_width;j+=IMG_WRITE_BSIZE)
 		{
-#if BSIZE == 1
+#if IMG_FILL_GRADIENT == 1 /*use a white to black gradient*/
+#if IMG_WRITE_BSIZE == 1
 			uint8_t v;
 		 v =		(j* (255/image_width));
 			IOWR_8DIRECT(image_base,j+(i*image_width),v);
-#elif BSIZE == 2
+#elif IMG_WRITE_BSIZE == 2
 			uint16_t v;
 			v =		(j* (255/image_width)) |
 					(((j+1)*(255/image_width)) >> 8);
 			IOWR_16DIRECT(image_base,(j+(i*image_width))/2,v);
-#elif BSIZE == 4
+#elif IMG_WRITE_BSIZE == 4
 			uint32_t v;
 			v =		(j* (255/image_width)) 		|
 					(((j+1)*(255/image_width)) >> 8) 	|
@@ -77,6 +78,15 @@ void fill_image(uint8_t * image_base, uint16_t image_height, uint16_t image_widt
 			IOWR_32DIRECT(image_base,(j+(i*image_width))/4,v);
 #else
 #error "please define a valid block size in bytes "
+#endif
+#else /*use a solid color*/
+#if IMG_WRITE_BSIZE == 1
+			IOWR_8DIRECT(image_base,j+(i*image_width),0x7f);
+#elif IMG_WRITE_BSIZE == 2
+			IOWR_16DIRECT(image_base,(j+(i*image_width))/2,0x7f7f);
+#elif IMG_WRITE_BSIZE == 4
+			IOWR_32DIRECT(image_base,(j+(i*image_width))/4,0x7f7f7f7f);
+#endif
 #endif
 		}
 	}
@@ -101,7 +111,7 @@ void print_num(uint32_t num)
 		++dp;
 	}
 	/*this is needed otherwise the number would be written in reverse*/
-	for(uint8_t i = 0;i<(dp/2);++i)
+	for(uint8_t i = 0;i<(dp>>1/*dp/2*/);++i)
 	{
 		tmp = buff[i];
 		buff[i] = buff[dp-i-1];
