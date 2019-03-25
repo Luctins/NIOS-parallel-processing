@@ -18,7 +18,7 @@
 	DEBUG_OUTPUT_F(msg, __VA_ARGS__ );	\
 	DEBUG_OUTPUT("\n")
 
-#define PRINT_NUM(str,number)  		\
+#define DEBUG_NUM(str,number)  		\
 	DEBUG_OUTPUT(str);  			\
 	print_num(number);             	\
 	DEBUG_OUTPUT("\n")
