@@ -23,9 +23,8 @@
 	print_num(number);             	\
 	DEBUG_OUTPUT("\n")
 
-#define VAR_DUMP(var,fmt)         	\
-	DEBUG_OUTPUT_F(#var":"fmt,var);   \
+#define VAR_DUMP(var,fmt)         		\
+	DEBUG_OUTPUT_F(#var":"fmt,var);   	\
 	DEBUG_OUTPUT("\n");
-
 
 #endif

@@ -7,6 +7,11 @@
   *
   */
 
+/*---------- Type Declaration ---------*/
+enum err_codes {
+	ERR_OK =0,
+	ERR_MEM
+};
 /*---------- Function declaration ----------*/
 void print_num(uint32_t);
 void delay_ms(uint32_t);
@@ -22,20 +27,28 @@ void print_num(uint32_t num)
 	char buff[15],tmp;
 	char * str = buff;
 	uint8_t dp=0; /*number of decimal places*/
-	while(num>0)
+	if(num == 0)
 	{
-		*(str)='0'+(num%10); /*set the digit as the remainder of dividing by ten (because '0' + 1 = '1')*/
-		++str;/*advance the pointer by one*/
-		num -= num%10; /*remove the last digit*/
-		num /= 10; /*shift the number one *decimal* place*/
+		*str ='0';
+		++str;
 	}
-	dp=str-buff;
-	/*this is needed otherwise the number would be written in reverse*/
-	for(uint8_t i = 0;i<(dp>>1/*dp/2*/);++i)
+	else
 	{
-		tmp = buff[i];
-		buff[i] = buff[dp-i-1];
-		buff[dp-i-1] = tmp;
+		while(num>0)
+		{
+			*(str)='0'+(num%10); /*set the digit as the remainder of dividing by ten (because '0' + 1 = '1')*/
+			++str;/*advance the pointer by one*/
+			num -= num%10; /*remove the last digit*/
+			num /= 10; /*shift the number one *decimal* place*/
+		}
+		dp=str-buff;
+		/*this is needed otherwise the number would be written in reverse*/
+		for(uint8_t i = 0;i<(dp>>1/*dp/2*/);++i)
+		{
+			tmp = buff[i];
+			buff[i] = buff[dp-i-1];
+			buff[dp-i-1] = tmp;
+		}
 	}
 	*str='\0'; /*null termination*/
 	DEBUG_OUTPUT(buff);
