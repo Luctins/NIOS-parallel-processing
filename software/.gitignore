@@ -3,3 +3,7 @@ RemoteSystemsTempFiles
 *.elf
 *.objdump
 *_bsp/*
+HAL/*
+*.map
+*.objdump
+*.hex
