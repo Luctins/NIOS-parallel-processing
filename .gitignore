@@ -6,3 +6,4 @@ output_files/*
 *.sopcinfo
 *.qws
 *.hex
+.~lock.*

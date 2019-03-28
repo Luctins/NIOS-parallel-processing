@@ -7,7 +7,7 @@
 #include "../common.h"
 
 /*--------- Macros/constants -------*/
-#define IMG_WRITE_BSIZE 4/*block size*/
+#define IMG_WRITE_BSIZE 2/*block size*/
 #define IMG_FILL_GRADIENT 1
 
 #define IMG_W (800)
@@ -47,7 +47,7 @@ int main(void)
 /*---- Function Definition-----------------*/
 /*-----------------------------------------*/
 
-/**VALUE
+/*
  * @brief fill image memory range
  *
  */
@@ -67,13 +67,21 @@ void fill_image(uint8_t * image_base, uint32_t image_height, uint32_t image_widt
 			IOWR_8DIRECT(image_base,j+i*image_width,v);
 #elif IMG_WRITE_BSIZE == 2
 			uint16_t v;
-			v =		((j*255)/image_width) |  ((((j+1)*255)/image_width) << 8);
+			v =		((j*255)/image_width) |((((j+1)*255)/image_width) << 8);
 			IOWR_16DIRECT(image_base,(j+i*image_width)>>1,v);
 #elif IMG_WRITE_BSIZE == 4
-			uint32_t v;
-			v =		((j*255)/image_width) |  ((((j+1)*255)/image_width) << 8) |
-					((((j+2)*255)/image_width) << 16) |   ((((j+3)*255)/image_width) << 24);
+			uint32_t v,r;
+			v =		((j*255)/image_width) | ((((j+1)*255)/image_width) << 8) |
+					((((j+2)*255)/image_width) << 16) |  ((((j+3)*255)/image_width) << 24);
 			IOWR_32DIRECT(image_base,(j+i*image_width)>>2,v);
+			/*
+			r=IORD_32DIRECT(image_base,(j+i*image_width)>>2);
+			if(v=!r)
+			{
+				DEBUGF("fault at j:%x i:",j,i);
+				break;
+			}
+			*/
 #endif
 #else /*use a solid color*/
 #if IMG_WRITE_BSIZE == 1
