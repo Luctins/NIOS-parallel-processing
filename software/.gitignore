@@ -7,4 +7,5 @@ HAL/*
 *.map
 *.objdump
 *.hex
+obj/
 obj/*
