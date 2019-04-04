@@ -1,9 +1,1 @@
-#ignore all generated and database files
-db
-db/*
-image_parallel_processing_qsys/*
-output_files/*
-*.sopcinfo
-*.qws
-*.hex
 .~lock.*
