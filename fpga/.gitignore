@@ -1,0 +1,9 @@
+#ignore all generated and database files
+db
+db/*
+output_files/*
+*.sopcinfo
+*.qws
+*.hex
+incremental_db/*
+proc_*/*
