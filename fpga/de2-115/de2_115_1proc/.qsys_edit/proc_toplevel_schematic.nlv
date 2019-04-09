@@ -1,0 +1,28 @@
+# # File gsaved with Nlview version 6.3.8  2013-12-19 bk=1.2992 VDI=34 GEI=35
+# 
+preplace inst proc_toplevel.clk_0 -pg 1 -lvl 1 -y 180
+preplace inst proc_toplevel.altpll_0 -pg 1 -lvl 3 -y 180
+preplace inst proc_toplevel.proc_0_0.nios2_gen2_0.cpu -pg 1
+preplace inst proc_toplevel -pg 1 -lvl 1 -y 40 -regy -20
+preplace inst proc_toplevel.proc_0_0.nios2_gen2_0.clock_bridge -pg 1
+preplace inst proc_toplevel.proc_0_0.timer_0 -pg 1
+preplace inst proc_toplevel.sdram_controller_0 -pg 1 -lvl 4 -y 220
+preplace inst proc_toplevel.proc_0_0.nios2_gen2_0 -pg 1
+preplace inst proc_toplevel.proc_0_0.clk_0 -pg 1
+preplace inst proc_toplevel.proc_0_0.nios2_gen2_0.reset_bridge -pg 1
+preplace inst proc_toplevel.proc_0_0.jtag_uart_0 -pg 1
+preplace inst proc_toplevel.mutex_0 -pg 1 -lvl 4 -y 140
+preplace inst proc_toplevel.proc_0_0.out_bridge_0 -pg 1
+preplace inst proc_toplevel.proc_0_0.onchip_memory2_0 -pg 1
+preplace inst proc_toplevel.proc_0_0 -pg 1 -lvl 2 -y 50
+preplace netloc POINT_TO_POINT<net_container>proc_toplevel</net_container>(SLAVE)altpll_0.inclk_interface,(MASTER)clk_0.clk) 1 1 2 NJ 190 NJ
+preplace netloc FAN_OUT<net_container>proc_toplevel</net_container>(MASTER)altpll_0.c0,(SLAVE)proc_0_0.clk,(SLAVE)sdram_controller_0.clk,(SLAVE)mutex_0.clk) 1 1 3 380 170 NJ 150 930
+preplace netloc FAN_OUT<net_container>proc_toplevel</net_container>(MASTER)proc_0_0.out_bridge,(SLAVE)sdram_controller_0.s1,(SLAVE)mutex_0.s1,(SLAVE)altpll_0.pll_slave) 1 2 2 650 130 870
+preplace netloc EXPORT<net_container>proc_toplevel</net_container>(SLAVE)proc_toplevel.sdram_controller_wire,(SLAVE)sdram_controller_0.wire) 1 0 4 NJ 290 NJ 290 NJ 290 NJ
+preplace netloc EXPORT<net_container>proc_toplevel</net_container>(SLAVE)proc_toplevel.reset,(SLAVE)clk_0.clk_in_reset) 1 0 1 NJ
+preplace netloc EXPORT<net_container>proc_toplevel</net_container>(SLAVE)altpll_0.locked_conduit,(SLAVE)proc_toplevel.altpll_0_locked_conduit) 1 0 3 NJ 150 NJ 150 NJ
+preplace netloc EXPORT<net_container>proc_toplevel</net_container>(SLAVE)clk_0.clk_in,(SLAVE)proc_toplevel.clk) 1 0 1 NJ
+preplace netloc EXPORT<net_container>proc_toplevel</net_container>(MASTER)proc_toplevel.clk_sdram,(MASTER)altpll_0.c1) 1 3 2 NJ 130 NJ
+preplace netloc FAN_OUT<net_container>proc_toplevel</net_container>(SLAVE)proc_0_0.reset,(SLAVE)altpll_0.inclk_interface_reset,(SLAVE)sdram_controller_0.reset,(MASTER)clk_0.clk_reset,(SLAVE)mutex_0.reset) 1 1 3 360 130 630 170 890
+levelinfo -pg 1 0 150 1200
+levelinfo -hier proc_toplevel 160 190 440 680 990 1110

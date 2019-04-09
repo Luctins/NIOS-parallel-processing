@@ -1,0 +1,17 @@
+Analysis & Synthesis Status : Successful - Tue Mar 26 19:01:29 2019
+Quartus Prime Version : 16.1.0 Build 196 10/24/2016 SJ Lite Edition
+Revision Name : image_parallel_processing
+Top-level Entity Name : image_parallel_processing
+Family : Cyclone V
+Logic utilization (in ALMs) : N/A
+Total registers : 2776
+Total pins : 72
+Total virtual pins : 0
+Total block memory bits : 2,464,576
+Total DSP Blocks : 3
+Total HSSI RX PCSs : 0
+Total HSSI PMA RX Deserializers : 0
+Total HSSI TX PCSs : 0
+Total HSSI PMA TX Serializers : 0
+Total PLLs : 1
+Total DLLs : 0
