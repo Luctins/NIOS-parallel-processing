@@ -7,3 +7,5 @@ output_files/*
 *.hex
 incremental_db/*
 proc_*/*
+*/synthesis/*
+proc_toplevel/*
