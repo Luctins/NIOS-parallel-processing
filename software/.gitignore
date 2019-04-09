@@ -2,8 +2,8 @@
 RemoteSystemsTempFiles
 *.elf
 *.objdump
-*_bsp/*
-HAL/*
+*/bsp/*
+*/*_bsp/*
 *.map
 *.objdump
 *.hex

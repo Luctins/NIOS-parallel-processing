@@ -1,9 +1,0 @@
-#ignore all generated and database files
-db
-db/*
-image_parallel_processing_qsys/*
-output_files/*
-*.sopcinfo
-
-incremental_db/*
-proc_0/*
