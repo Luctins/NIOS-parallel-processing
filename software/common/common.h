@@ -12,6 +12,7 @@ enum err_codes {
 	ERR_OK =0,
 	ERR_MEM
 };
+typedef enum err_codes err_t;
 /*---------- Function declaration ----------*/
 void print_num(uint32_t);
 void delay_ms(uint32_t);
