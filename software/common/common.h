@@ -1,11 +1,14 @@
-#ifndef COMMON_H
-#define COMMON_H
 
 /* @file: common.h
  * @author: Lucas Martins Mendes
  * Functions common to all processors.
   *
   */
+
+#ifndef COMMON_H
+#define COMMON_H
+
+#include <stdint.h>
 
 /*---------- Type Declaration ---------*/
 enum err_codes {
