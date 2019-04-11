@@ -8,6 +8,7 @@
 ##
 
 DEFAULT_PATH="/home/luctins/repo/NIOS-parallel-processing/fpga/"
+DEFAULT_PROJ_DIR="/home/luctins/repo/NIOS-parallel-processing/software"
 SOPC_LOCATION=""
 
 trap _exit INT
@@ -22,57 +23,72 @@ function _exit()
 function pick_file()
 {
     _PWD=$PWD
-    files=$(ls)
-    i=0
-    for f in files
+    cd $DEFAULT_PATH
+    RESULT=""
+    while [ ! -f "${PWD}/${RESULT}" ]
     do
-        files[i]="$i"
-        files[i+1]="$f"
-        ((i+=2))
+        DIR=$(ls -a)
+        i=0
+        unset files
+        for f in $DIR ; do
+            if [ $f = "." ]
+            then
+                continue
+            fi
+            files[i]="$(( i / 2 ))"
+            files[i+1]="$f"
+            let "i= $i + 2"
+        done
+        echo "files: ${files[@]}"
+        eval `resize`
+        RSL=$(whiptail --title "file selector" --menu "Please select the $FNAME" $LINES $COLUMNS $(( $LINES - 8 )) "${files[@]}" 3>&1 1>&2 2>&3)
+
+        if [ $? != 0 ]
+        then
+            break
+        fi
+
+        let "RSL= $RSL + $RSL"
+        let "RSL= $RSL + 1"
+
+        echo "RSL: $RSL"
+
+        RESULT="${files[${RSL}]}"
+
+        echo "result: $RESULT"
+
+        if [ -f $RESULT ] && [ $RESULT != ".." ]; then
+            break
+            echo "found file : ${PWD}/${RESULT}"
+        else
+            cd $RESULT
+        fi
     done
-    whiptail --title "please select the SOPC location" --menu "Please select the desired file"
+    RESULT="${PWD}/${RESULT}"
+    cd $_PWD;
 
 }
-
-while [ 1 = 1 ]
-do
-    FILE=$(whiptail --title 'please select the SOPC location'  --menu "please select the desired file" 14 40 20 "${FILES[@]})
 
 #set up nios terminal
 #nios_bash
 
-echo 'please select the SOPC location (relative/absolute)'
+FNAME="SOPC location"
+pick_file
+SOPC_LOC=$RESULT
 
-while [ 1 = 1 ]
-do
-    FILES=$(ls $DEFAULT_PATH)
-    #SOPC_LOCATION=$(dialog --stdout --title 'please select the SOPC location' --fselect "$DEFAULT_PATH" 20 70)
-    SOPC_LOCATION=$(whiptail --title 'please select the SOPC location'  --menu "please select the desired file" 14 40 20 "${FILES[@]}" )
-    if [ -f $SOPC_LOCATION ]
-    then
-        #break if reached a file
-        break
-    fi
-    if [[ $? == 255 ]]
-    then
-        exit
-    fi
+echo -n "please insert the project name: "
+read project_name
 
+mkdir "$DEFAULT_PROJ_DIR/$project_name"
+mkdir "$DEFAULT_PROJ_DIR/$project_name/app"
+mkdir "$DEFAULT_PROJ_DIR/$project_name/bsp"
+cd "$DEFAULT_PROJ_DIR/$project_name"
 
-done
+nios2-swexample-create --name="$project_name" --type=blank_project  --sopc-file="$SOPC_LOC" --bsp-dir=./bsp/ --app-dir=./app/
 
-clear
-
-PROJECT_NAME="default"
-
-
-while [[ "${PROJECT_NAME}" !=~ '[0-9a-zA-Z\-_]' ]]
-do
-    echo -n "please insert the project name:"
-    read PROJECT_NAME
-    if [[  $PROJECT_NAME !=~ [0-9a-zA-Z\-_] ]]
-    then
-        echo "the project name must only contain alphanumeric characters, '-' and '_' (no whitespace)"
-    else
-        break
-done
+cd bsp
+./create-this-bsp
+cd ../app
+echo "void main(void) { } " >> main.c
+./create-this-app
+sed -i -e "s/^C_SRCS :=/C_SRCS :=main.c/g" Makefile
