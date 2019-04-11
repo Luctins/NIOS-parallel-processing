@@ -13,8 +13,13 @@
 #include "debug.h"
 #include "common.h"
 
+/*---------- Macros/Constants ---------*/
+
+/*-------- Globals -------*/
+
 /*----------- Function predeclaration ---------*/
 
+/*--------- Main ---------*/
 int main(void)
 {
 
@@ -25,3 +30,8 @@ int main(void)
     }
   return 0;/*never return, really*/
 }
+
+/*-------- Function definition ---------*/
+
+
+/*--------------------------------------*/
