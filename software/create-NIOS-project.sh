@@ -79,11 +79,15 @@ SOPC_LOC=$RESULT
 echo -n "please insert the project name: "
 read project_name
 
-mkdir "$DEFAULT_PROJ_DIR/$project_name"
-mkdir "$DEFAULT_PROJ_DIR/$project_name/app"
-mkdir "$DEFAULT_PROJ_DIR/$project_name/bsp"
-cd "$DEFAULT_PROJ_DIR/$project_name"
+mkdir "${DEFAULT_PROJ_DIR}/${project_name}"
+mkdir "${DEFAULT_PROJ_DIR}/${project_name}/app"
+mkdir "${DEFAULT_PROJ_DIR}/${project_name}/bsp"
+cp template/Makefile "${DEFAULT_PROJ_DIR}/${project_name}/"
 
+cd "$DEFAULT_PROJ_DIR/${project_name}"
+sed -i -e "s/^PROJ_NAME :=/PROJ_NAME :=${project_name}/g" Makefile
+
+#create NIOS nios Project
 nios2-swexample-create --name="$project_name" --type=blank_project  --sopc-file="$SOPC_LOC" --bsp-dir=./bsp/ --app-dir=./app/
 
 cd bsp
