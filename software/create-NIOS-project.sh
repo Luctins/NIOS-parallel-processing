@@ -90,6 +90,7 @@ mkdir "${project_name}/bsp"
 cp -v template/Makefile "${project_name}/"
 #copy main and dir-locals
 cp -v template/main.c "${project_name}/app/"
+
 cp -v template/dir-locals.el "${project_name}/app/.dir-locals.el"
 
 cd "${DEFAULT_PROJ_DIR}/${project_name}"
@@ -103,8 +104,10 @@ nios2-swexample-create --name="$project_name" --type=blank_project  --sopc-file=
 
 #make BSP and app
 cd bsp
+echo "run create-this-bsp"
 ./create-this-bsp
 cd ../app
+echo "run create-this-app"
 ./create-this-app
 
 #insert main as a target into the makefile
@@ -115,3 +118,7 @@ make -s
 echo "edit app/Makefile to add include dir"
 sed -i -e "s/^ALT_INCLUDE_DIRS :=/ALT_INCLUDE_DIRS := \/home\/luctins\/repo\/NIOS-parallel-processing\/software\/common/g " Makefile
 echo "done"
+
+#cd ../../
+#echo "((c-mode . (( flycheck-clang-include-path . (( \"$(realpath common/)\" )  (\" $(realpath ${project_name}/bsp/drivers/inc )\")  (  \" $(realpath ${project_name}/bsp/) \") (\"$(realpath ${project_name}/bsp/HAL/inc)\"))))))" > ${project_name}/app/.dir-locals.el
+#cat ${project_name}/app/.dir-locals.el
