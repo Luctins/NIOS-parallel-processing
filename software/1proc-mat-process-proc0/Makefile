@@ -33,4 +33,4 @@ update-bsp:
 	nios2-bsp-update-settings --settings=$(BSP_SETTINGS)
 
 ${NIOS_TARGETS} :
-	make -C $(PROJ_NAME)_app/ $@
+	make -C app/ $@
