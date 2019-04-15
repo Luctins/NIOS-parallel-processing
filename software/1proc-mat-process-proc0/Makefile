@@ -4,7 +4,7 @@
 # @brief: top level makefile for nios Projects
 ################################################
 
-NIOS_TARGETS :=  all bsp libs flash mem_init_generate
+NIOS_TARGETS :=  all bsp libs flash mem_init_generate help
 NIOS_TARGETS += clean_all clean clean_bsp clean_libs download-elf program-flash
 
 #############
@@ -33,4 +33,4 @@ update-bsp:
 	nios2-bsp-update-settings --settings=$(BSP_SETTINGS)
 
 ${NIOS_TARGETS} :
-	make -C $(PROJ_NAME)_app/ $@.PHONY: update-bsp download
+	make -C $(PROJ_NAME)_app/ $@
