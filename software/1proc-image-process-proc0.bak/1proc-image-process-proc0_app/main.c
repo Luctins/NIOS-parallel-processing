@@ -3,8 +3,8 @@
 #include "sys/alt_stdio.h"
 #include <stdint.h>
 #include "sys/time.h"
-#include "../common/debug.h"
-#include "../common/common.h"
+#include "../../common/debug.h"
+#include "../../common/common.h"
 
 /*OBS: the image is black and white with 1 byte of color depht*/
 /*
@@ -32,6 +32,7 @@
 
 void fill_image(uint8_t *, uint32_t, uint32_t); //__attribute__((always_inline));
 uint8_t read_block(uint8_t*,uint8_t *,uint32_t,uint32_t);
+uint8_t write_block(uint8_t *, uint8_t *, uint32_t, uint32_t);
 void process_block_simple(uint8_t *block,uint32_t,uint32_t,uint8_t(*operation)(uint8_t value));
 
 uint8_t test_thresh(uint8_t val)
@@ -56,9 +57,9 @@ int main(void)
 		now=clock();
 		DEBUG_NUM("time to fill mat:",now-start);
 
-    for(uint8_t h=0;h<IMG_H; h+=BLOCK_H)
+    for(uint32_t h=0;h<IMG_H; h+=BLOCK_H)
       {
-        for(uint8_t w=0;w<IMG_W; w+= BLOCK_W)
+        for(uint32_t w=0;w<IMG_W; w+= BLOCK_W)
           {
             err_t err;
             err = read_block(IMAGE_BASE, image_block, h, w);
@@ -76,7 +77,7 @@ int main(void)
 /*---- Function Definition-----------------*/
 /*-----------------------------------------*/
 /*
- * apply (operation) to block, substituting the value for the returned value,
+ * @brief apply (operation) to block, substituting the value for the returned value,
  * only useful for operations independent of adjacent pixels ("operation" must be reentrant and idempotent).
  */
 void process_block_simple(
@@ -96,6 +97,40 @@ void process_block_simple(
         *ACC_MAT(block,h,w,block_w)=r;/*store back*/
       }
     }
+}
+
+/*
+ * @brief write a block to memory
+ */
+uint8_t write_block(
+                    uint8_t * image_base 	/*! base address in SDRAM*/,
+                    uint8_t * image_block 	/*! pointer to local memory block*/,
+                    uint32_t block_start_h  /*! block starting position */,
+                    uint32_t block_start_w  /*! block starting position */
+                    )
+{
+	uint32_t v = 0;
+  uint32_t block_end_h = BLOCK_H + block_start_h;
+  uint32_t block_end_w = BLOCK_W + block_start_w;
+
+  /*stop at image boundaries*/
+  block_end_h = block_end_h > IMG_H ? IMG_H : block_end_h;
+  block_end_w = block_end_w > IMG_W ? IMG_W : block_end_w;
+
+  for(uint8_t h=block_start_h; h<BLOCK_H; ++h)
+    {
+      for(uint8_t w=block_start_w; w<BLOCK_W; w+=RW_SIZE)
+        {
+          v = IORD_32DIRECT(image_base,(w+h*BLOCK_W)>>2);
+          for(uint8_t t=0;t<3;t++)
+            {
+              *ACC_MAT(image_block, h, w+t, BLOCK_W) = (v & 0xff);
+              //*(image_block+((w+t)+h*BLOCK_W)) = (v  & 0xff); /*extract the lower byte from v*/
+              v >>= 8; /*shift v 8 bits*/
+            }
+        }
+    }
+	return ERR_OK;
 }
 
 /*
