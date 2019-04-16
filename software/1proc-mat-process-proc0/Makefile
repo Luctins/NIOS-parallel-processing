@@ -14,7 +14,7 @@ NIOS_TARGETS += clean_all clean clean_bsp clean_libs download-elf program-flash
 PROJ_NAME :=1proc-mat-process-proc0
 
 CUSTOM_TARGETS := update-bsp config-bsp
-BSP_SETINGS := "${CURDIR}/$(PROJ_NAME)_bsp/settings.bsp"
+BSP_SETTINGS := "$(shell realpath ./bsp/settings.bsp)"
 
 ##########
 # Include
@@ -24,13 +24,13 @@ BSP_SETINGS := "${CURDIR}/$(PROJ_NAME)_bsp/settings.bsp"
 # Targets
 #############
 
-.PHONY: $(CUSTOM_TARGETS)
+.PHONY: ${CUSTOM_TARGETS}
 
 edit-bsp:
-	nios2-bsp-editor --settings=$(BSP_SETTINGS)
+	nios2-bsp-editor --settings=${BSP_SETTINGS}
 
 update-bsp:
-	nios2-bsp-update-settings --settings=$(BSP_SETTINGS)
+	nios2-bsp-update-settings --settings=${BSP_SETTINGS}
 
 ${NIOS_TARGETS} :
 	make -C app/ $@
