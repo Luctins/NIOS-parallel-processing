@@ -2,7 +2,7 @@
 #define DEBUG_H
 
 /**
- * @file debug.h 
+ * @file debug.h
  * @author Lucas Martins Mendes
  * @brief debug macros
  */
@@ -14,12 +14,12 @@
 	DEBUG_OUTPUT(msg);					\
 	DEBUG_OUTPUT("\n")
 
-#define DEBUGF(msg,...)					\
+#define DEBUGF(msg,...)               \
 	DEBUG_OUTPUT_F(msg, __VA_ARGS__ );	\
 	DEBUG_OUTPUT("\n")
 
 #define DEBUG_NUM(str,number)  		\
-	DEBUG_OUTPUT(str);  			\
+	DEBUG_OUTPUT(str);              \
 	print_num(number);             	\
 	DEBUG_OUTPUT("\n")
 
@@ -27,4 +27,27 @@
 	DEBUG_OUTPUT_F(#var":"fmt,var);   	\
 	DEBUG_OUTPUT("\n");
 
-#endif
+#define _STR(x) #x
+
+#define STR(x) _STR(x)
+
+
+#define ASSERT(cond)                                            \
+  if(!(cond))                                                   \
+    {                                                           \
+    }                                                           \
+  else                                                          \
+    {                                                           \
+      DEBUG_OUTPUT("error: \""STR(cond)"\" at "STR(__LINE__));  \
+    }
+
+#define ASSERT_ERROR(cond,do_err)                             \
+  if(!(cond))                                                 \
+    {                                                         \
+    }                                                         \
+  else                                                        \
+    {                                                         \
+      DEBUG_OUTPUT("error:\""STR(cond)"\" at "STR(__LINE__)); \
+      do_err;                                                 \
+    }
+  #endif
