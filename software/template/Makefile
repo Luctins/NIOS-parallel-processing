@@ -14,7 +14,7 @@ NIOS_TARGETS += clean_all clean clean_bsp clean_libs download-elf program-flash
 PROJ_NAME :=
 
 CUSTOM_TARGETS := update-bsp config-bsp
-BSP_SETINGS := "${CURDIR}/$(PROJ_NAME)_bsp/settings.bsp"
+BSP_SETINGS := "${CURDIR}/bsp/settings.bsp"
 
 ##########
 # Include
