@@ -1,6 +1,6 @@
 #ignore all generated and database files
-*/db/*
-*/output_files/*
+db/*
+output_files/*
 *.sopcinfo
 *.qws
 *.hex
@@ -8,7 +8,7 @@
 *.a
 *.summary
 *.asm
-*/incremental_db/*
-*/proc_*/*
-*/synthesis/*
-*/proc_toplevel/*
+incremental_db/*
+proc_*/*
+synthesis/*
+proc_toplevel/*
