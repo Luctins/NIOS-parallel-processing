@@ -21,7 +21,7 @@
 /*--------- Macros-------*/
 /*------Compilation Options ------*/
 #define RW_SIZE 4 /*block size*/
-#define IMG_FILL_GRADIENT 0
+#define IMG_FILL_GRADIENT 1
 
 /*------ Constrants ------*/
 #define IMG_W (640) /*! image total width*/
@@ -31,21 +31,25 @@
 #define BLOCK_H (IMG_H/2)
 
 #define IMG_THRESHOLD (127)
-#define IMAGE_BASE ((alt_u8 *)SDRAM_CONTROLLER_BASE)
+#define MAT_BASE ((alt_u8 *)SDRAM_CONTROLLER_BASE)
+#define CPUID ALT_CPU_CPU_ID_VALUE
 
 #define ACC_MAT(mat,y_pos,x_pos,x_size) ((mat) + (x_pos) +((y_pos)*(x_size)))
+
+#define MUTEX_LOCK(mut) altera_avalon_mutex_lock(mut, CPUID)
+#define MUTEX_UNLOCK(mut) altera_avalon_mutex_unlock(mut)
 
 /*------- Function pre-declaration --------*/
 
 void fill_image(alt_u8 *, alt_u32 , alt_u32); //__attribute__((always_inline));
 alt_u8 read_block(alt_u8*,alt_u8 *,alt_u32,alt_u32);
 alt_u8 write_block(alt_u8 *, alt_u8 *, alt_u32, alt_u32);
-void process_block_simple(alt_u8 *block,alt_u32,alt_u32,alt_u8(*operation)(alt_u8 value));
-
+void process_block_simple(alt_u8 *block,alt_u32,alt_u32,alt_u8(*operation)(alt_u8 value)) __attribute__((hot));
+inline alt_u8 test_thresh(alt_u8) __attribute__((hot, always_inline));
 /*
   test function used as parameter for process block simple
  */
-alt_u8 test_thresh(alt_u8 val)
+inline alt_u8 test_thresh(alt_u8 val)
 {
   return (val>IMG_THRESHOLD?255:0);
 }
@@ -62,30 +66,48 @@ alt_u8 image_block [BLOCK_H*BLOCK_W]; /*! memory block used as buffer*/
 int main(void)
 {
 	DEBUG("hello there");
-  mutex = alt_mutex_open("/dev/mutex");
-  ASSERT_ERROR(mutex == NULL,/*do something*/);
+  mutex = altera_avalon_mutex_open("/dev/mutex");
+  ASSERT_ERROR(mutex == NULL,/*do something (error condition)*/);
+  //altera_avalon_mutex_first_lock(mutex);
 
+#if CPUID != 0 /*wait*/
+  usleep(1000000);
+#else  /*obtain mutex and fill in test image*/
+  altera_avalon_mutex_lock(mutex,CPUID);
+  start = clock();
+  fill_image(MAT_BASE,IMG_H,IMG_W);
+	now=clock();
+  DEBUG_NUM("time to fill initial mat:",now-start);
+  altera_avalon_mutex_unlock(mutex);
+#endif
 	while(1)
 	{
-  //start = clock();
-  /*implement time measuring with alt_timestamp*/
-  /*add mutex calls to code*/
-		fill_image((alt_u8 *) IMAGE_BASE,IMG_H,IMG_W);
-		now=clock();
-		DEBUG_NUM("time to fill mat:",now-start);
 
-    for(alt_u32 h=0;h<IMG_H; h+=BLOCK_H)
-      {
-        for(alt_u32 w=0;w<IMG_W; w+= BLOCK_W)
-          {
-            err_t err;
-            err = read_block(IMAGE_BASE, image_block, h, w);
-            process_block_simple(image_block, BLOCK_H, BLOCK_W, test_thresh);
-          }
-      }
-		/*read memory blocks until there's none to process*/
-		/*for each block iterate inside it*/
+    start=clock();
+  for(alt_u32 h=0;h<IMG_H; h+=BLOCK_H)
+    {
+      for(alt_u32 w=0;w<IMG_W; w+= BLOCK_W)
+        {
+          err_t err;
+          /*read a block from memory*/
+          altera_avalon_mutex_lock(mutex,CPUID);
+          err = read_block(MAT_BASE, image_block, h, w);
+          altera_avalon_mutex_unlock(mutex);
 
+          /*process a block*/
+          start=clock();
+          process_block_simple(image_block, BLOCK_H, BLOCK_W, test_thresh);
+          now=clock();
+          DEBUG_NUM("processing this block took:", now-start);
+
+          /*write back a block to memory*/
+          MUTEX_LOCK(mutex);
+          write_block(MAT_BASE,image_block,h,w);
+          MUTEX_UNLOCK(mutex);
+        }
+    }
+  /*read memory blocks until there's none to process*/
+  /*for each block iterate inside it*/
 	}
 	return 0;
 }
@@ -117,13 +139,13 @@ void process_block_simple(
 }
 
 /*
- * @brief write a block to memory
+ * @brief write a block back to memory
  */
 alt_u8 write_block(
-                    alt_u8 * image_base 	/*! base address in SDRAM*/,
+                   alt_u8 * image_base 	/*! base address in SDRAM*/,
                     alt_u8 * image_block 	/*! pointer to local memory block*/,
-                    alt_u32 block_start_h  /*! block starting position */,
-                    alt_u32 block_start_w  /*! block starting position */
+                    alt_u32 block_start_h  /*! block starting h position */,
+                    alt_u32 block_start_w  /*! block starting w  position */
                     )
 {
 	alt_u32 v = 0;
@@ -180,8 +202,10 @@ alt_u8 read_block( alt_u8 * image_base 	/*! base address in SDRAM*/,
 	return ERR_OK;
 }
 
+
+
 /**
- * @brief load a test "image" onto SDRAM
+ * @brief load a test matrix onto SDRAM
  *
  */
 void fill_image(alt_u8 * image_base, alt_u32 image_height, alt_u32 image_width)
