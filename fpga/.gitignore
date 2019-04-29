@@ -8,6 +8,9 @@
 *.a
 *.summary
 *.asm
+*.rpt
+*.smsg
+*.sof
 **/incremental_db/**
 **/proc_?/**
 **/synthesis/**
