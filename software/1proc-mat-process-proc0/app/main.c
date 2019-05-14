@@ -27,12 +27,14 @@
 #define IMG_W (640) /*! image total width*/
 #define IMG_H (480) /*! image total height*/
 
-#define BLOCK_W (IMG_W)
+#define BLOCK_W (IMG_W/2)
 #define BLOCK_H (IMG_H/2)
 
 #define IMG_THRESHOLD (127)
 #define MAT_BASE ((alt_u8 *)SDRAM_CONTROLLER_BASE)
 #define CPUID ALT_CPU_CPU_ID_VALUE
+#define PROC0_CPUID 1
+#define EVAL(x) x
 
 #define ACC_MAT(mat,y_pos,x_pos,x_size) ((mat) + (x_pos) +((y_pos)*(x_size)))
 
@@ -45,10 +47,13 @@ void fill_image(alt_u8 *, alt_u32 , alt_u32); //__attribute__((always_inline));
 alt_u8 read_block(alt_u8*,alt_u8 *,alt_u32,alt_u32);
 alt_u8 write_block(alt_u8 *, alt_u8 *, alt_u32, alt_u32);
 void process_block_simple(alt_u8 *block,alt_u32,alt_u32,alt_u8(*operation)(alt_u8 value)) __attribute__((hot));
-inline alt_u8 test_thresh(alt_u8) __attribute__((hot, always_inline));
+alt_u8 test_thresh(alt_u8) __attribute__((hot, always_inline));
+
+
 /*
   test function used as parameter for process block simple
  */
+
 inline alt_u8 test_thresh(alt_u8 val)
 {
   return (val>IMG_THRESHOLD?255:0);
@@ -57,45 +62,47 @@ inline alt_u8 test_thresh(alt_u8 val)
 /*------- Global Variables --------*/
 
 /*OBS: the image is black and white with 1 byte of color[?] depht*/
-clock_t start=0,now=0;
 alt_mutex_dev * mutex = NULL;
-
-alt_u8 image_block [BLOCK_H*BLOCK_W]; /*! memory block used as buffer*/
+static alt_u8 image_block [BLOCK_H*BLOCK_W]; /*! memory block used as buffer*/
 
 /*--------- Main ---------*/
 int main(void)
 {
+  clock_t start=0,now=0;
 	DEBUG("hello there");
-  mutex = altera_avalon_mutex_open("/dev/mutex");
+  mutex = altera_avalon_mutex_open("/dev/mutex_0");
   ASSERT_ERROR(mutex == NULL,/*do something (error condition)*/);
-  //altera_avalon_mutex_first_lock(mutex);
+  DEBUG("opened mutex OK");
 
-#if CPUID != 0 /*wait*/
+#if CPUID != PROC0_CPUID /*wait*/
   usleep(1000000);
 #else  /*obtain mutex and fill in test image*/
-  altera_avalon_mutex_lock(mutex,CPUID);
   start = clock();
+  MUTEX_LOCK(mutex);
   fill_image(MAT_BASE,IMG_H,IMG_W);
+  MUTEX_UNLOCK(mutex);
 	now=clock();
   DEBUG_NUM("time to fill initial mat:",now-start);
-  altera_avalon_mutex_unlock(mutex);
 #endif
 	while(1)
 	{
-
-    start=clock();
+    clock_t outloop_start = clock();
   for(alt_u32 h=0;h<IMG_H; h+=BLOCK_H)
     {
+      DEBUG_NUM("h: ",h);
       for(alt_u32 w=0;w<IMG_W; w+= BLOCK_W)
         {
+          DEBUG_NUM("w: ",w);
           err_t err;
           /*read a block from memory*/
-          altera_avalon_mutex_lock(mutex,CPUID);
+          MUTEX_LOCK(mutex);
           err = read_block(MAT_BASE, image_block, h, w);
-          altera_avalon_mutex_unlock(mutex);
+          MUTEX_UNLOCK(mutex);
+          DEBUG("read block");
 
           /*process a block*/
           start=clock();
+          /*TODO: implement logic to stop at image borders (e.g. use variable size blocks)*/
           process_block_simple(image_block, BLOCK_H, BLOCK_W, test_thresh);
           now=clock();
           DEBUG_NUM("processing this block took:", now-start);
@@ -106,6 +113,18 @@ int main(void)
           MUTEX_UNLOCK(mutex);
         }
     }
+
+      clock_t outloop_now = clock();
+      DEBUG_NUM("total time: ",outloop_now - outloop_start);
+#if CPUID != PROC0_CPUID /*wait*/
+#else  /*obtain mutex and fill in test image*/
+      start = clock();
+      MUTEX_LOCK(mutex);
+      fill_image(MAT_BASE,IMG_H,IMG_W);
+      MUTEX_UNLOCK(mutex);
+      now=clock();
+      DEBUG_NUM("time to fill sintetic image:",now-start);
+#endif
   /*read memory blocks until there's none to process*/
   /*for each block iterate inside it*/
 	}
@@ -131,9 +150,9 @@ void process_block_simple(
     {
     for(alt_u32 w=0; w<block_w; ++w)
       {
-        v=*ACC_MAT(block,h,w,block_w); /*read the value*/
-        r=operation(v);/* apply operation to it*/
-        *ACC_MAT(block,h,w,block_w)=r;/*store back*/
+          v=*ACC_MAT(block,h,w,block_w); /*read the value*/
+          r=operation(v);/* apply operation to it*/
+          *ACC_MAT(block,h,w,block_w)=r;/*store back*/
       }
     }
 }
@@ -156,9 +175,9 @@ alt_u8 write_block(
   block_end_h = block_end_h > IMG_H ? IMG_H : block_end_h;
   block_end_w = block_end_w > IMG_W ? IMG_W : block_end_w;
 
-  for(alt_u8 h=block_start_h; h<BLOCK_H; ++h)
+  for(alt_u32 h=block_start_h; h<BLOCK_H; ++h)
     {
-      for(alt_u8 w=block_start_w; w<BLOCK_W; w+=RW_SIZE)
+      for(alt_u32 w=block_start_w; w<BLOCK_W; w+=RW_SIZE)
         {
           v = IORD_32DIRECT(image_base,(w+h*BLOCK_W)>>2);
           for(alt_u8 t=0;t<3;t++)
@@ -175,30 +194,33 @@ alt_u8 write_block(
 /*
  * @brief read a block of memory from flash.
  */
-alt_u8 read_block( alt_u8 * image_base 	/*! base address in SDRAM*/,
-                    alt_u8 * image_block 	/*! pointer to local memory block*/,
-                    alt_u32 block_start_h  /*! block starting position */,
-                    alt_u32 block_start_w  /*! block starting position */
-                    )
+alt_u8 read_block(
+                  alt_u8 * image_base 	/*! base address in SDRAM*/,
+                  alt_u8 * image_block 	/*! pointer to local memory block*/,
+                  alt_u32 block_start_h  /*! block starting position */,
+                  alt_u32 block_start_w  /*! block starting position */
+                  )
 {
 	/*remember that the image_block is a 2d array*/
 	alt_u32 v = 0;
   alt_u32 block_end_h = BLOCK_H + block_start_h;  block_end_h = block_end_h > IMG_H ? IMG_H : block_end_h;
   alt_u32 block_end_w = BLOCK_W + block_start_w;  block_end_w = block_end_w > IMG_W ? IMG_W : block_end_w;
 
-  for(alt_u8 h=block_start_h; h<BLOCK_H; ++h)
-	{
-		for(alt_u8 w=block_start_w; w<BLOCK_W; w+=RW_SIZE)
-		{
-			v = IORD_32DIRECT(image_base,(w+h*BLOCK_W)>>2);
-			for(alt_u8 t=0;t<3;t++)
-			{
-        *ACC_MAT(image_block, h, w+t, BLOCK_W) = (v & 0xff);
-        //*(image_block+((w+t)+h*BLOCK_W)) = (v  & 0xff); /*extract the lower byte from v*/
-        v >>= 8; /*shift v 8 bits*/
-			}
-		}
-	}
+  for(alt_u32 h=block_start_h; h<BLOCK_H; ++h)
+    {
+      DEBUG_NUM("h : ",h);
+      for(alt_u32 w=block_start_w; w<BLOCK_W; w+=RW_SIZE)
+        {
+              DEBUG_NUM("w : ",w);
+          v = IORD_32DIRECT(image_base,(w+h*BLOCK_W)>>2);
+          for(alt_u8 t=0;t<3;t++)
+            {
+              *ACC_MAT(image_block, h, w+t, BLOCK_W) = (v & 0xff);
+              //*(image_block+((w+t)+h*BLOCK_W)) = (v  & 0xff); /*extract the lower byte from v*/
+              v >>= 8; /*shift v 8 bits*/
+            }
+        }
+    }
 	return ERR_OK;
 }
 
@@ -216,20 +238,25 @@ void fill_image(alt_u8 * image_base, alt_u32 image_height, alt_u32 image_width)
 	for(i=0;i<image_height;++i) /*access the image as a contiguous region of memory */
 	{
 		for(j=0;j<image_width;j+=RW_SIZE)
-		{
+      {
 #if IMG_FILL_GRADIENT == 1 /*use a black to white gradient*/
 #if RW_SIZE == 1
       alt_u8 v;
-		 v = ((j*255)/image_width);
-			IOWR_8DIRECT(image_base,j+i*image_width,v);
+      v = ((j*255)/image_width);
+      IOWR_8DIRECT(image_base,j+i*image_width,v);
 #elif RW_SIZE == 2
 			alt_u16 v;
-			v =		((j*255)/image_width) |((((j+1)*255)/image_width) << 8);
+			v =
+        ((j*255)/image_width) |
+        ((((j+1)*255)/image_width) << 8);
 			IOWR_16DIRECT(image_base,(j+i*image_width)>>1,v);
 #elif RW_SIZE == 4
 			alt_u32 v,r;
-			v =		((j*255)/image_width) | ((((j+1)*255)/image_width) << 8) |
-					((((j+2)*255)/image_width) << 16) |  ((((j+3)*255)/image_width) << 24);
+			v =
+        ((j*255)/image_width)             |
+        ((((j+1)*255)/image_width) << 8)  |
+				((((j+2)*255)/image_width) << 16) |
+        ((((j+3)*255)/image_width) << 24);
 			IOWR_32DIRECT(image_base,(j+i*image_width)>>2,v);
 			/*
 			r=IORD_32DIRECT(image_base,(j+i*image_width)>>2);
