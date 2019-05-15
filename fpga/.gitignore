@@ -11,9 +11,13 @@
 **/*.rpt
 **/*.smsg
 **/*.sof
-**/
+**/*.nlv
+**/*.jdi
+**/*.smsg
+**/*.html
+**/*.cdf
 
 **/incremental_db/**
-**/proc_?/**
+**/proc_*/**
 **/synthesis/**
 **/proc_toplevel/**
