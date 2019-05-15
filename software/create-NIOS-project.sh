@@ -118,7 +118,3 @@ make -s
 echo "edit app/Makefile to add include dir"
 sed -i -e "s/^ALT_INCLUDE_DIRS :=/ALT_INCLUDE_DIRS := \/home\/luctins\/repo\/NIOS-parallel-processing\/software\/common/g " Makefile
 echo "done"
-
-#cd ../../
-#echo "((c-mode . (( flycheck-clang-include-path . (( \"$(realpath common/)\" )  (\" $(realpath ${project_name}/bsp/drivers/inc )\")  (  \" $(realpath ${project_name}/bsp/) \") (\"$(realpath ${project_name}/bsp/HAL/inc)\"))))))" > ${project_name}/app/.dir-locals.el
-#cat ${project_name}/app/.dir-locals.el
