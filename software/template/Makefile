@@ -13,7 +13,7 @@ NIOS_TARGETS += clean_all clean clean_bsp clean_libs download-elf program-flash
 
 PROJ_NAME :=
 
-CUSTOM_TARGETS := update-bsp edit-bsp
+CUSTOM_TARGETS := update-bsp edit-bsp run
 BSP_SETTINGS := "${CURDIR}/bsp/settings.bsp"
 
 ##########
@@ -28,6 +28,7 @@ BSP_SETTINGS := "${CURDIR}/bsp/settings.bsp"
 
 edit-bsp:
 	nios2-bsp-editor --settings=$(BSP_SETTINGS)
+	nios2-bsp-generate-files --settings=${BSP_SETTINGS} --bsp-dir=./bsp/
 
 update-bsp:
 	nios2-bsp-update-settings --settings=$(BSP_SETTINGS)
