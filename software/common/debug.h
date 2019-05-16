@@ -27,6 +27,11 @@
 	DEBUG_OUTPUT_F(#var":"fmt,var);   	\
 	DEBUG_OUTPUT("\n");
 
+#define VAR_DUMPN(var)                          \
+  DEBUG_OUTPUT(#var":");                           \
+  print_num(var);                               \
+  DEBUG_OUTPUT("\n");
+
 #define _STR(x) #x
 
 #define STR(x) _STR(x)
@@ -50,4 +55,6 @@
       DEBUG_OUTPUT("error:\""STR(cond)"\" at "STR(__LINE__)); \
       do_err;                                                 \
     }
-  #endif
+
+
+#endif
