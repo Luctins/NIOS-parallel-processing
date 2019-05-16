@@ -8,6 +8,7 @@
 //#include <stdint.h>
 #include <unistd.h>
 #include "sys/time.h"
+//#include "sys/clock.h"
 #include "debug.h"
 #include "common.h"
 #include "altera_avalon_mutex.h"
@@ -24,34 +25,38 @@
 #define IMG_FILL_GRADIENT 1
 
 /*------ Constrants ------*/
-#define IMG_W (640) /*! image total width*/
-#define IMG_H (480) /*! image total height*/
+#define IMG_W (800) /*! image total width*/
+#define IMG_H (800) /*! image total height*/
 
-#define BLOCK_W (IMG_W/2)
-#define BLOCK_H (IMG_H/2)
-
+#define BLOCK_W (400)
+#define BLOCK_H (400)
 #define IMG_THRESHOLD (127)
 #define MAT_BASE ((alt_u8 *)SDRAM_CONTROLLER_BASE)
 #define CPUID ALT_CPU_CPU_ID_VALUE
 #define PROC0_CPUID 1
-#define EVAL(x) x
 
-#define ACC_MAT(mat,y_pos,x_pos,x_size) ((mat) + (x_pos) +((y_pos)*(x_size)))
+
+#define ACC_MAT(mat,x_pos,y_pos,x_size) ((mat) + (x_pos) +((y_pos)*(x_size)))
 
 #define MUTEX_LOCK(mut) altera_avalon_mutex_lock(mut, CPUID)
 #define MUTEX_UNLOCK(mut) altera_avalon_mutex_unlock(mut)
 
+#define DEBUG_OK() DEBUG("OK at: " STR(__LINE__))
+
 /*------- Function pre-declaration --------*/
 
-void fill_image(alt_u8 *, alt_u32 , alt_u32); //__attribute__((always_inline));
-alt_u8 read_block(alt_u8*,alt_u8 *,alt_u32,alt_u32);
-alt_u8 write_block(alt_u8 *, alt_u8 *, alt_u32, alt_u32);
-void process_block_simple(alt_u8 *block,alt_u32,alt_u32,alt_u8(*operation)(alt_u8 value)) __attribute__((hot));
+alt_u8 read_block(alt_u8 * const ,alt_u8 * const ,const alt_u32, const alt_u32, const alt_u32, const alt_u32);
+
+void fill_image(alt_u8 * const, const alt_u32 , const alt_u32); //__attribute__((always_inline));
+
+alt_u8 write_block(alt_u8 * const, alt_u8 * const, const alt_u32, const alt_u32 , const alt_u32, const alt_u32);
+
+void process_block_simple(alt_u8 * const ,const alt_u32,const alt_u32,alt_u8(* const operation)(alt_u8 value)) __attribute__((hot));
 alt_u8 test_thresh(alt_u8) __attribute__((hot, always_inline));
 
 
 /*
-  test function used as parameter for process block simple
+  test function used as parameter for process_block_simple
  */
 
 inline alt_u8 test_thresh(alt_u8 val)
@@ -125,111 +130,113 @@ int main(void)
       now=clock();
       DEBUG_NUM("time to fill sintetic image:",now-start);
 #endif
+
+#endif
   /*read memory blocks until there's none to process*/
   /*for each block iterate inside it*/
-	}
 	return 0;
 }
 
+  //block_end_h = block_end_h > IMG_H ? IMG_H : block_end_h;
+  //block_end_w = block_end_w > IMG_W ? IMG_W : block_end_w;
 
 /*---- Function Definition-----------------*/
-/*-----------------------------------------*/
+
 /*
- * @brief apply (operation) to block, substituting the value for the returned value,
- * only useful for operations independent of adjacent pixels ("operation" must be reentrant and idempotent).
+ * @brief read a block of memory from flash to a local buffer.
+ */
+alt_u8 read_block(
+                  alt_u8 * const source_base   /*! base address to read from in SDRAM*/,
+                  alt_u8 * const dest 	/*! pointer to local memory block*/,
+                  const alt_u32 w_start  /*! block starting position */,
+                  const alt_u32 h_start  /*! block starting position */,
+                  const alt_u32 w_len /*! block length */,
+                  const alt_u32 h_len /*! block lenght */
+                  )
+{
+	alt_u32 v = 0;
+  alt_u32 h_end = h_start + h_len -1;
+  alt_u32 w_end = w_start + w_len -1;
+
+  for(alt_u32 h=h_start; h<h_end; ++h)
+    {
+      for(alt_u32 w=w_start; w<w_end; w+=RW_SIZE) /*step in 1,2,4 bit chunks (words)*/
+        {
+          v = IORD_32DIRECT(source_base,ACC_MAT(0,w,h,w_len)>>2); /*acess SDRAM, the right shift is to convert the address to 32 bit words*/
+
+          /*write v to the image, as 4 bytes in series like (B0,B1,B2,B3), by storing each byte then shifting v to the right*/
+          *ACC_MAT(dest, w  , h, w_len) = (v & 0xff); v >>= 8;
+          *ACC_MAT(dest, w+1, h, w_len) = (v & 0xff); v >>= 8;
+          *ACC_MAT(dest, w+2, h, w_len) = (v & 0xff); v >>= 8;
+          *ACC_MAT(dest, w+3, h, w_len) = (v & 0xff); v >>= 8;
+        }
+    }
+	return ERR_OK;
+}
+
+
+/**
+   @brief write a block back to memory
+ */
+alt_u8 write_block(
+                   alt_u8 * const dest_base 	/*! base address in SDRAM*/,
+                    alt_u8 * const src 	/*! pointer to local memory block*/,
+                   const alt_u32 w_start  /*! block starting position */,
+                   const alt_u32 h_start  /*! block starting position */,
+                   const alt_u32 w_len /*! block length */,
+                   const alt_u32 h_len /*! block lenght */
+                    )
+{
+  alt_u32 v=0;
+  alt_u32 h_end = h_start + h_len;
+  alt_u32 w_end = w_start + w_len;
+
+  for(alt_u32 h=h_start; h< h_end; ++h)
+    {
+      for(alt_u32 w=w_start; w<w_end; w+=RW_SIZE) /*step in 1,2,4 bit chunks (words)*/
+        {
+          v =
+            *ACC_MAT(src, w  , h, w_len) |
+            *ACC_MAT(src, w+1, h, w_len) << 8 |
+            *ACC_MAT(src, w+2, h, w_len)  << 16 |
+            *ACC_MAT(src, w+3, h, w_len)  << 24 ;
+          IOWR_32DIRECT(dest_base,ACC_MAT(0,w,h,w_len)>>2,v);
+        }
+    }
+	return ERR_OK;
+}
+
+
+/**
+   @brief apply (operation) to block, substituting the value for the returned value, only useful for operations independent of adjacent pixels ("operation" must be reentrant and idempotent).
  */
 void process_block_simple(
-                          alt_u8* block, /*!pointer to memory block*/
-                          alt_u32 block_h, /*!block height*/
-                          alt_u32 block_w, /*!block width*/
-                          alt_u8 (*operation)(alt_u8 value)/*function to apply to value*/
+                          alt_u8 * const block, /*!pointer to memory block*/
+                          const alt_u32 w_len, /*!block height*/
+                          const alt_u32 h_len, /*!block width*/
+                          alt_u8 (* const operation)(alt_u8 value)/*function to apply to value*/
                           )
 {
   alt_u32 v=0,r=0;
-	for(alt_u32 h=0; h<block_h; ++h)
+	for(alt_u32 h=0; h<h_len; ++h)
     {
-    for(alt_u32 w=0; w<block_w; ++w)
+      //VAR_DUMPN(h);
+    for(alt_u32 w=0; w<w_len; ++w)
       {
-          v=*ACC_MAT(block,h,w,block_w); /*read the value*/
-          r=operation(v);/* apply operation to it*/
-          *ACC_MAT(block,h,w,block_w)=r;/*store back*/
+        v=*ACC_MAT(block,h,w,w_len); /*read the value*/
+        r=operation(v);/* apply operation to it*/
+        *ACC_MAT(block,h,w,w_len)=r;/*store back*/
+        //VAR_DUMPN(w);
       }
     }
 }
 
-/*
- * @brief write a block back to memory
- */
-alt_u8 write_block(
-                   alt_u8 * image_base 	/*! base address in SDRAM*/,
-                    alt_u8 * image_block 	/*! pointer to local memory block*/,
-                    alt_u32 block_start_h  /*! block starting h position */,
-                    alt_u32 block_start_w  /*! block starting w  position */
-                    )
-{
-	alt_u32 v = 0;
-  alt_u32 block_end_h = BLOCK_H + block_start_h;
-  alt_u32 block_end_w = BLOCK_W + block_start_w;
-
-  /*stop at image boundaries*/
-  block_end_h = block_end_h > IMG_H ? IMG_H : block_end_h;
-  block_end_w = block_end_w > IMG_W ? IMG_W : block_end_w;
-
-  for(alt_u32 h=block_start_h; h<BLOCK_H; ++h)
-    {
-      for(alt_u32 w=block_start_w; w<BLOCK_W; w+=RW_SIZE)
-        {
-          v = IORD_32DIRECT(image_base,(w+h*BLOCK_W)>>2);
-          for(alt_u8 t=0;t<3;t++)
-            {
-              *ACC_MAT(image_block, h, w+t, BLOCK_W) = (v & 0xff);
-              //*(image_block+((w+t)+h*BLOCK_W)) = (v  & 0xff); /*extract the lower byte from v*/
-              v >>= 8; /*shift v 8 bits*/
-            }
-        }
-    }
-	return ERR_OK;
-}
-
-/*
- * @brief read a block of memory from flash.
- */
-alt_u8 read_block(
-                  alt_u8 * image_base 	/*! base address in SDRAM*/,
-                  alt_u8 * image_block 	/*! pointer to local memory block*/,
-                  alt_u32 block_start_h  /*! block starting position */,
-                  alt_u32 block_start_w  /*! block starting position */
-                  )
-{
-	/*remember that the image_block is a 2d array*/
-	alt_u32 v = 0;
-  alt_u32 block_end_h = BLOCK_H + block_start_h;  block_end_h = block_end_h > IMG_H ? IMG_H : block_end_h;
-  alt_u32 block_end_w = BLOCK_W + block_start_w;  block_end_w = block_end_w > IMG_W ? IMG_W : block_end_w;
-
-  for(alt_u32 h=block_start_h; h<BLOCK_H; ++h)
-    {
-      DEBUG_NUM("h : ",h);
-      for(alt_u32 w=block_start_w; w<BLOCK_W; w+=RW_SIZE)
-        {
-              DEBUG_NUM("w : ",w);
-          v = IORD_32DIRECT(image_base,(w+h*BLOCK_W)>>2);
-          for(alt_u8 t=0;t<3;t++)
-            {
-              *ACC_MAT(image_block, h, w+t, BLOCK_W) = (v & 0xff);
-              //*(image_block+((w+t)+h*BLOCK_W)) = (v  & 0xff); /*extract the lower byte from v*/
-              v >>= 8; /*shift v 8 bits*/
-            }
-        }
-    }
-	return ERR_OK;
-}
-
-
 
 /**
- * @brief load a test matrix onto SDRAM
- *
+   @brief load a sintetic matrix onto SDRAM
+
  */
+
 void fill_image(alt_u8 * image_base, alt_u32 image_height, alt_u32 image_width)
 {
 	/*fill image with white to gray gradient*/
