@@ -49,7 +49,7 @@
          type = "String";
       }
    }
-   element proc_0_0
+   element proc_0
    {
       datum _sortIndex
       {
@@ -289,7 +289,7 @@
   <parameter name="initialOwner" value="0" />
   <parameter name="initialValue" value="0" />
  </module>
- <module name="proc_0_0" kind="proc_0" version="1.0" enabled="1">
+ <module name="proc_0" kind="proc_0" version="1.0" enabled="1">
   <parameter name="AUTO_CLK_CLOCK_DOMAIN" value="4" />
   <parameter name="AUTO_CLK_CLOCK_RATE" value="143000000" />
   <parameter name="AUTO_CLK_RESET_DOMAIN" value="4" />
@@ -299,7 +299,7 @@
   <parameter name="AUTO_GENERATION_ID" value="0" />
   <parameter name="AUTO_OUT_BRIDGE_ADDRESS_MAP"><![CDATA[<address-map><slave name='sdram_controller.s1' start='0x0' end='0x8000000' /><slave name='altpll_0.pll_slave' start='0x8000000' end='0x8000010' /><slave name='mutex_0.s1' start='0x8000010' end='0x8000018' /></address-map>]]></parameter>
   <parameter name="AUTO_OUT_BRIDGE_ADDRESS_WIDTH" value="AddressWidth = 28" />
-  <parameter name="AUTO_UNIQUE_ID">$${FILENAME}_proc_0_0</parameter>
+  <parameter name="AUTO_UNIQUE_ID" value="$${FILENAME}_proc_0" />
  </module>
  <module
    name="sdram_controller"
@@ -333,7 +333,7 @@
  <connection
    kind="avalon"
    version="16.1"
-   start="proc_0_0.out_bridge"
+   start="proc_0.out_bridge"
    end="altpll_0.pll_slave">
   <parameter name="arbitrationPriority" value="1" />
   <parameter name="baseAddress" value="0x08000000" />
@@ -342,7 +342,7 @@
  <connection
    kind="avalon"
    version="16.1"
-   start="proc_0_0.out_bridge"
+   start="proc_0.out_bridge"
    end="sdram_controller.s1">
   <parameter name="arbitrationPriority" value="1" />
   <parameter name="baseAddress" value="0x0000" />
@@ -351,13 +351,13 @@
  <connection
    kind="avalon"
    version="16.1"
-   start="proc_0_0.out_bridge"
+   start="proc_0.out_bridge"
    end="mutex_0.s1">
   <parameter name="arbitrationPriority" value="1" />
   <parameter name="baseAddress" value="0x08000010" />
   <parameter name="defaultConnection" value="false" />
  </connection>
- <connection kind="clock" version="16.1" start="altpll_0.c0" end="proc_0_0.clk" />
+ <connection kind="clock" version="16.1" start="altpll_0.c0" end="proc_0.clk" />
  <connection kind="clock" version="16.1" start="altpll_0.c0" end="mutex_0.clk" />
  <connection
    kind="clock"
@@ -388,7 +388,7 @@
    kind="reset"
    version="16.1"
    start="clk_0.clk_reset"
-   end="proc_0_0.reset" />
+   end="proc_0.reset" />
  <interconnectRequirement for="$system" name="qsys_mm.clockCrossingAdapter" value="HANDSHAKE" />
  <interconnectRequirement for="$system" name="qsys_mm.enableEccProtection" value="FALSE" />
  <interconnectRequirement for="$system" name="qsys_mm.insertDefaultSlave" value="FALSE" />
