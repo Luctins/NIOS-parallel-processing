@@ -12,6 +12,7 @@ NIOS_TARGETS += clean_all clean clean_bsp clean_libs download-elf program-flash
 ############
 
 PROJ_NAME :=1proc-mat-process-proc0
+PROC_NUM := 0
 
 CUSTOM_TARGETS := update-bsp edit-bsp run
 BSP_SETTINGS := "$(shell realpath ./bsp/settings.bsp)"
@@ -25,6 +26,9 @@ BSP_SETTINGS := "$(shell realpath ./bsp/settings.bsp)"
 #############
 
 .PHONY: ${CUSTOM_TARGETS}
+
+run: download-elf
+	nios2-terminal
 
 edit-bsp:
 	nios2-bsp-editor --settings=${BSP_SETTINGS}
