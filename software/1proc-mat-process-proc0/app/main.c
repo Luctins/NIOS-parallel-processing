@@ -66,38 +66,95 @@ inline alt_u8 test_thresh(alt_u8 val)
 
 /*------- Global Variables --------*/
 
-/*OBS: the image is black and white with 1 byte of color[?] depht*/
-alt_mutex_dev * mutex = NULL;
+/*OBS: the image is black and white with 1 byte for each pixel*/
+
 static alt_u8 image_block [BLOCK_H*BLOCK_W]; /*! memory block used as buffer*/
 
 /*--------- Main ---------*/
 int main(void)
 {
+  alt_mutex_dev * mutex = NULL;
   clock_t start=0,now=0;
+
 	DEBUG("hello there");
+  DEBUG("opening mutex");
   mutex = altera_avalon_mutex_open("/dev/mutex_0");
   ASSERT_ERROR(mutex == NULL,/*do something (error condition)*/);
-  DEBUG("opened mutex OK");
+  DEBUG("OK");
 
 #if CPUID != PROC0_CPUID /*wait*/
   usleep(1000000);
 #else  /*obtain mutex and fill in test image*/
-  start = clock();
   MUTEX_LOCK(mutex);
+  start = clock();
   fill_image(MAT_BASE,IMG_H,IMG_W);
-  MUTEX_UNLOCK(mutex);
 	now=clock();
+  MUTEX_UNLOCK(mutex);
   DEBUG_NUM("time to fill initial mat:",now-start);
 #endif
 	while(1)
 	{
+    clock_t outloop_start;
+    alt_u32 h=0,w=0;
+    alt_u32 w_step, h_step;
+
+      outloop_start= clock();
+    while(h<IMG_H)
+      {
+        h_step =  BLOCK_H+h > IMG_H? IMG_H - h: BLOCK_H;
+        //DEBUG_NUM("h-step: ", h_step);
+
+        while(w<IMG_W)
+          {
+            /*calculate step size*/
+            w_step = BLOCK_W+w > IMG_W? IMG_W - w: BLOCK_W;
+
+            /*lock mutex and load a piece of the image into image_block*/
+            MUTEX_LOCK(mutex);
+            read_block(MAT_BASE, image_block, w, h, w_step, h_step);
+            MUTEX_UNLOCK(mutex);
+
+            /*process a block*/
+            //start=clock();
+            process_block_simple(image_block, w_step, h_step, test_thresh);
+            //now=clock();
+            //DEBUG_NUM("processing this block took:", now-start);
+
+            /*write back to SDRAM*/
+            //start=clock();
+            write_block(MAT_BASE, image_block, w, h, w_step, h_step);
+            //now=clock();
+            //DEBUG_NUM("writing to SDRAM took:", now-start);
+
+            /*increment w and h stopping at the image borders*/
+            w+= w_step;
+          }
+        h+= h_step;
+      }
+    now = clock();
+    DEBUG_NUM("processing time:",now-outloop_start);
+
+#if CPUID != PROC0_CPUID /*wait*/
+      usleep(1000000);
+#else  /*obtain mutex and fill in test image*/
+    start = clock();
+    MUTEX_LOCK(mutex);
+    fill_image(MAT_BASE,IMG_H,IMG_W);
+    MUTEX_UNLOCK(mutex);
+    now=clock();
+    DEBUG_NUM("time to fill sintetic mat:",now-start);
+#endif
+  }
+
+
+#if 0 /*reworking loops*/
     clock_t outloop_start = clock();
   for(alt_u32 h=0;h<IMG_H; h+=BLOCK_H)
     {
-      DEBUG_NUM("h: ",h);
+      //DEBUG_NUM("h: ",h);
       for(alt_u32 w=0;w<IMG_W; w+= BLOCK_W)
         {
-          DEBUG_NUM("w: ",w);
+          //DEBUG_NUM("w: ",w);
           err_t err;
           /*read a block from memory*/
           MUTEX_LOCK(mutex);
