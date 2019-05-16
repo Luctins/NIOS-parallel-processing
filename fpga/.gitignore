@@ -16,7 +16,9 @@
 **/*.smsg
 **/*.html
 **/*.cdf
+**/*.sld
 
+#folders
 **/incremental_db/**
 **/proc_*/**
 **/synthesis/**
